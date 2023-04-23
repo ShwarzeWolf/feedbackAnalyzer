@@ -1,4 +1,7 @@
 from telebot import TeleBot, types
+
+from bot.models import Feedback
+from bot.repositories import save_feedback
 from settings import BOT_TOKEN
 
 bot = TeleBot(BOT_TOKEN)
@@ -23,7 +26,12 @@ def ask_feedback(answer):
 
 
 def get_feedback(message, **kwargs):
-    print(kwargs.get('course') + ' ' + message.text)
+    new_feedback = Feedback(
+        course=kwargs.get('course'),
+        content=message.text
+    )
+
+    save_feedback(new_feedback)
     bot.send_message(message.chat.id, 'Ваш ответ записан!')
     bot.send_message(message.chat.id, 'Спасибо за участие в опросе')
 
