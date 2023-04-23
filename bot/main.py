@@ -1,17 +1,29 @@
-from telebot import TeleBot
+from telebot import TeleBot, types
 from settings import BOT_TOKEN
 
 bot = TeleBot(BOT_TOKEN)
 
 
 @bot.message_handler(commands=['give_feedback'])
-def ask_feedback(message):
-    bot.send_message(message.chat.id, 'Как бы вы оценили курс?')
-    bot.register_next_step_handler(message, get_feedback)
+def ask_course(message):
+    courses = types.InlineKeyboardMarkup()
+    networks = types.InlineKeyboardButton(text='Компьютерные сети', callback_data='networks')
+    python = types.InlineKeyboardButton(text='Python Pro', callback_data='python')
+    courses.add(networks, python)
+
+    bot.send_message(message.chat.id, 'В каком курсе вы участвовали?', reply_markup=courses)
 
 
-def get_feedback(message):
-    print(message.text)
+@bot.callback_query_handler(func=lambda answer: answer.data)
+def ask_feedback(answer):
+    course = answer.data
+    bot.answer_callback_query(answer.id)
+    bot.send_message(answer.message.chat.id, 'Как бы вы оценили курс?')
+    bot.register_next_step_handler(answer.message, get_feedback, course=course)
+
+
+def get_feedback(message, **kwargs):
+    print(kwargs.get('course') + ' ' + message.text)
     bot.send_message(message.chat.id, 'Ваш ответ записан!')
     bot.send_message(message.chat.id, 'Спасибо за участие в опросе')
 
