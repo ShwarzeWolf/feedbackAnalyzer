@@ -11,3 +11,6 @@ class Feedback(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     course = Column(String(256), nullable=False)
     content = Column(Text)
+
+    def __repr__(self):
+        return f'{self.course}: {self.content}'
